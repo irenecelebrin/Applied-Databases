@@ -29,17 +29,16 @@ for name in attendee_names:
 
 def main():
 
-    display_menu()
 
     # map choice to CRUD operations 
     # now placeholders
     while True:
-        choice = input('Choice: ')
+        display_menu()
+        choice = input('Choice: ').strip()
         if choice == '1':
             view_speakers()
-            display_menu()
         elif choice == '2':
-            print('2')
+            view_attendees()
         elif choice == '3':
             print('3')
         elif choice == '4':
@@ -54,7 +53,7 @@ def main():
             print('Select a valid option')
 
 
-# function to display the menu in the terminal 
+#display the menu in the terminal 
 def display_menu():
 
     print('--------')
@@ -70,6 +69,7 @@ def display_menu():
     print('6 - View Rooms')
     print('x - Exit Application')
 
+
 def view_speakers():
 
     try: 
@@ -82,27 +82,92 @@ def view_speakers():
                 ' on session.roomID = room.roomID' \
                 ' WHERE session.speakerName LIKE %s'
 
-    
-    except:
-        print('error')
 
-    with conn: 
+
         cursor = conn.cursor()
-        cursor.execute(query,(search_string))
+        cursor.execute(query,(search_string,))
         items = cursor.fetchall()
   
-    rows = []
-    for item in items:
-        rows.append(item['speakerName'] + '\t|\t' + item['sessionTitle'] + '\t|\t' + item['roomName'])
+        rows = []
+        for item in items:
+            rows.append(item['speakerName'] + '\t|\t' + item['sessionTitle'] + '\t|\t' + item['roomName'])
     
-    print(f'Session details for: {search_for}')
-    if rows != []:
-        for row in rows:
-            print(row) 
-    else: 
-        print('--------------')
-        print('No speakers found of that name')
+        print(f'Session details for: {search_for}')
+        if rows != []:
+            for row in rows:
+                print(row) 
+        else: 
+            print('--------------')
+            print('No speakers found of that name')
+
+    except Exception as e: 
+        print('Databse error: {e}')
            
+
+# verify that company ID is a valid number (integer, above 0)
+def get_valid_company_id(): 
+
+    while True: 
+        user_input = input('Enter company ID: ').strip()
+
+        if not user_input.isdigit():
+            continue
+
+        company_id = int(user_input)
+
+        if company_id <= 0:
+            continue
+
+        return company_id
+    
+
+#TODO check if Date of session needs to be included in the output
+def view_attendees():
+
+    try:
+
+        search_for = get_valid_company_id()
+        search_string = search_for
+        company_query = 'SELECT companyName' \
+                        ' from company' \
+                        ' WHERE companyID = %s'
+        
+        attendee_query = 'SELECT attendee.attendeeName, attendee.attendeeDOB, session.sessionTitle, session.speakerName, room.roomName' \
+                ' from attendee' \
+                ' INNER JOIN registration' \
+                ' on attendee.attendeeID = registration.attendeeID' \
+                ' INNER JOIN session' \
+                ' on registration.sessionID = session.sessionID' \
+                ' INNER JOIN room' \
+                ' ON session.roomID = room.roomID' \
+                ' WHERE attendee.attendeeCompanyID = %s' \
+                ' ORDER BY attendee.attendeeName'
+
+    
+        cursor = conn.cursor()
+        cursor.execute(company_query, (search_string,))
+        company = cursor.fetchall()
+        cursor.execute(attendee_query,(search_string,))
+        items = cursor.fetchall()
+
+
+        attendees = []
+        for item in items:
+            attendees.append(item['attendeeName'] + '\t|\t' + str(item['attendeeDOB']) + '\t|\t' + item['sessionTitle'] + '\t|\t' + item['speakerName'] + '\t|\t' + item['roomName'])
+    
+    
+        #print results
+        print(f"{company[0]['companyName']} Attendees")   
+        for attendee in attendees:
+            print(attendee)
+
+    # If company ID is a valid number but does not exist in the database
+    except IndexError as e:
+        print('Company ID not found')
+
+    # catch-all 
+    except Exception as e:
+        print(f'Database error: {type(e)}')
 
 
 
