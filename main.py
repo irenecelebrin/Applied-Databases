@@ -124,50 +124,60 @@ def get_valid_company_id():
 #TODO check if Date of session needs to be included in the output
 def view_attendees():
 
-    try:
+    while True: 
+            
+        try:
 
-        search_for = get_valid_company_id()
-        search_string = search_for
-        company_query = 'SELECT companyName' \
-                        ' from company' \
-                        ' WHERE companyID = %s'
+            search_for = get_valid_company_id()
+            search_string = search_for
+            company_query = 'SELECT companyName' \
+                            ' from company' \
+                            ' WHERE companyID = %s'
+            
+            attendee_query = 'SELECT attendee.attendeeName, attendee.attendeeDOB, session.sessionTitle, session.speakerName, room.roomName' \
+                    ' from attendee' \
+                    ' INNER JOIN registration' \
+                    ' on attendee.attendeeID = registration.attendeeID' \
+                    ' INNER JOIN session' \
+                    ' on registration.sessionID = session.sessionID' \
+                    ' INNER JOIN room' \
+                    ' ON session.roomID = room.roomID' \
+                    ' WHERE attendee.attendeeCompanyID = %s' \
+                    ' ORDER BY attendee.attendeeName'
+
+            # connect to db
+            cursor = conn.cursor()
+            cursor.execute(company_query, (search_string,))
+            company = cursor.fetchall()
+            cursor.execute(attendee_query,(search_string,))
+            items = cursor.fetchall()
+
+            # store values 
+            company_name = company[0]['companyName']
+            attendees = []
+            for item in items:
+                attendees.append(item['attendeeName'] + '\t|\t' + str(item['attendeeDOB']) + '\t|\t' + item['sessionTitle'] + '\t|\t' + item['speakerName'] + '\t|\t' + item['roomName'])
         
-        attendee_query = 'SELECT attendee.attendeeName, attendee.attendeeDOB, session.sessionTitle, session.speakerName, room.roomName' \
-                ' from attendee' \
-                ' INNER JOIN registration' \
-                ' on attendee.attendeeID = registration.attendeeID' \
-                ' INNER JOIN session' \
-                ' on registration.sessionID = session.sessionID' \
-                ' INNER JOIN room' \
-                ' ON session.roomID = room.roomID' \
-                ' WHERE attendee.attendeeCompanyID = %s' \
-                ' ORDER BY attendee.attendeeName'
+        
+            #print results
+            print(f"{company_name} Attendees")  
+            if len(attendees) > 0:  
+                for attendee in attendees:
+                    print(attendee)
+                break
+            # exception: company has no attendee 
+            else:
+                print(f'No attendees found for {company_name}')
+                continue
 
-    
-        cursor = conn.cursor()
-        cursor.execute(company_query, (search_string,))
-        company = cursor.fetchall()
-        cursor.execute(attendee_query,(search_string,))
-        items = cursor.fetchall()
+        # exception: company ID is a valid number but does not exist in the database
+        except IndexError as e:
+            print(f"Company with ID {search_for} doesn't exist")
+            continue
 
-
-        attendees = []
-        for item in items:
-            attendees.append(item['attendeeName'] + '\t|\t' + str(item['attendeeDOB']) + '\t|\t' + item['sessionTitle'] + '\t|\t' + item['speakerName'] + '\t|\t' + item['roomName'])
-    
-    
-        #print results
-        print(f"{company[0]['companyName']} Attendees")   
-        for attendee in attendees:
-            print(attendee)
-
-    # If company ID is a valid number but does not exist in the database
-    except IndexError as e:
-        print('Company ID not found')
-
-    # catch-all 
-    except Exception as e:
-        print(f'Database error: {type(e)}')
+        # exception: catch-all 
+        except Exception as e:
+            print(f'Database error: {type(e)}')
 
 
 
