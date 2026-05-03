@@ -1,0 +1,6 @@
+
+Add new attendee 
+- control exception for invalid company id --> helper function 
+- control exception for invalid date of birth 
+- exception for invalid person ID --> now managed upstream with int() and not database error. 
+
