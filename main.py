@@ -179,10 +179,33 @@ def view_attendees():
         except Exception as e:
             print(f'Database error: {type(e)}')
 
+def add_new_attendee():
+
+    print('Add New Attendee:')
+    print('--------')
+    id = int(input('Attendee ID: '))
+    name = input('Name: ')
+    dob = input('DOB: ')
+    gender = input('Gender: ')
+    company_id = int(input('Company ID: '))
+
+
+    query = 'INSERT INTO attendee' \
+            ' (attendeeID, attendeeName, attendeeDOB, attendeeGender, attendeeCompanyID)'\
+            ' VALUES (%s, %s, %s, %s, %s)'
+
+    
+    cursor = conn.cursor()
+    cursor.execute(query, (id, name, dob, gender, company_id))
+    conn.commit()
+    print('Attendee succcessfully added')
+    #except pymysql.err.IntegrityError as e:
+
+
 
 
 
 ## main 
 if __name__ == '__main__':
-    main()
+    add_new_attendee()
 
