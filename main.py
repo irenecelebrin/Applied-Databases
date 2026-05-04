@@ -50,7 +50,7 @@ def main():
         elif choice == '4':
             view_connected_attendees()
         elif choice == '5':
-            print('5')
+            add_connection()
         elif choice == '6':
             print(6)
         elif choice == 'x':
@@ -144,17 +144,26 @@ def attendee_exists(attendee_id):
     except Exception as e: 
         print(f'Database Error :{e}')
 
-# Return relations from Neo4J database 
-def get_relations(tx, module):
+#  Return relations (CONNECTED_TO) from Neo4J database 
+def get_relations(tx, attendee):
 
-    query = 'MATCH(n:Attendee{AttendeeID:$AttendeeID}) - [:CONNECTED_TO]-> (n1:Attendee) RETURN n1.AttendeeID as id' 
-    results = tx.run(query, AttendeeID = module)
+    query = 'MATCH(n:Attendee{AttendeeID:$AttendeeID}) - [:CONNECTED_TO]- (n1:Attendee) RETURN n1.AttendeeID as id' 
+    results = tx.run(query, AttendeeID = attendee)
 
     relations = []
     for result in results:
         relations.append(result['id'])
 
     return relations
+
+# Create a relation (CONNECTED_TO) between two attendee IDs
+def create_connection(tx, id1, id2):
+    query = 'MATCH (n:Attendee {AttendeeID: $id1}), (n1:Attendee{AttendeeID: $id2})'\
+            ' MERGE (n) - [:CONNECTED_TO] -> (n1)'
+        
+    tx.run(query, id1 = id1, id2 = id2)
+
+
 
 # ----------- MENU FUNCTIONS --------------- 
 
@@ -192,7 +201,7 @@ def view_speakers():
         print('Databse error: {e}')
    
 
-#TODO check if Date of session needs to be included in the output
+# Given a company ID, view attendees and the sessions they are registered for
 def view_attendees():
 
     while True: 
@@ -205,7 +214,7 @@ def view_attendees():
                             ' from company' \
                             ' WHERE companyID = %s'
             
-            attendee_query = 'SELECT attendee.attendeeName, attendee.attendeeDOB, session.sessionTitle, session.speakerName, room.roomName' \
+            attendee_query = 'SELECT attendee.attendeeName, attendee.attendeeDOB, session.sessionTitle, session.speakerName, session.sessionDate, room.roomName' \
                     ' from attendee' \
                     ' INNER JOIN registration' \
                     ' on attendee.attendeeID = registration.attendeeID' \
@@ -227,7 +236,7 @@ def view_attendees():
             company_name = company[0]['companyName']
             attendees = []
             for item in items:
-                attendees.append(item['attendeeName'] + '\t|\t' + str(item['attendeeDOB']) + '\t|\t' + item['sessionTitle'] + '\t|\t' + item['speakerName'] + '\t|\t' + item['roomName'])
+                attendees.append(item['attendeeName'] + '\t|\t' + str(item['attendeeDOB']) + '\t|\t' + item['sessionTitle'] + '\t|\t' + item['speakerName']+ '\t|\t' + str(item['sessionDate'])  + '\t|\t' + item['roomName'])
         
         
             #print results
@@ -250,6 +259,7 @@ def view_attendees():
         except Exception as e:
             print(f'Database error: {type(e)}')
 
+# Add a new attendee to the SQL database (table: attendee)
 def add_new_attendee():
 
     try:
@@ -285,6 +295,7 @@ def add_new_attendee():
         print (f'*** ERROR *** {e}')   
 
 
+# View existing relations (CONNECTED_TO) in the Neo4J database
 def view_connected_attendees():
     
     try: 
@@ -320,55 +331,57 @@ def view_connected_attendees():
     except Exception as e:
         print (f'Database error: {e}')
 
+
+# Add a new relation (CONNECTED_TO) between to valid attendee IDs (if no relation already exists)
 def add_connection():
 
+    # ask for attendee ID, veirfy that they are numbers and that they exist in the SQL db
     while True: 
-        try: 
-            attendee_1_id = int(input('Enter Attendee 1 ID: '))
-        except ValueError as e: 
-            print(' *** ERROR ***: {e}')
+        id_1 = input('Enter Attendee 1 ID: ').strip()
+        id_2 = input('Enter Attendee 2 ID: ').strip()
+
+        if not (id_1.isdigit() and id_2.isdigit()):
+            print('*** ERROR ***: Attendee IDs must be numbers ')
             continue
-        
-        if attendee_exists(attendee_1_id):
-            break
-        else: 
-            print(f'*** ERROR ***: Attendee {attendee_1_id} does not exist')
 
-    while True: 
-        try: 
-            attendee_2_id = int(input('Enter Attendee 2 ID: '))
-        except ValueError as e: 
-            print(' *** ERROR ***: {e}')
+        attendee_1_id = int(id_1)
+        attendee_2_id = int(id_2)
+
+        if not (attendee_exists(attendee_1_id) and attendee_exists(attendee_2_id)):
+            print(f'*** ERROR *** : One or both attendees do not exist')
             continue
+
+        if attendee_1_id == attendee_2_id:
+            print(f'*** ERROR *** : An attendee cannot connect to him/herself')
+            continue
+
+        break
+
+    try: 
+        # verify if the IDs are already connected
+        with neo4j_driver.session() as session:
+
+            relations = session.execute_read(get_relations, attendee_1_id)
+            if attendee_2_id in relations:
+                print('*** ERROR *** : These attendees are already connected')
         
-        if attendee_exists(attendee_2_id):
-            break
-        else: 
-            print(f'*** ERROR ***: Attendee {attendee_2_id} does not exist')        
+            else:
+        
+                # create a connection (a -> b), use MERGE as extra precaution to avoid duplicates 
+                with neo4j_driver.session() as session: 
+                    session.execute_write(create_connection, attendee_1_id, attendee_2_id)
+
+                print(f'Attendee {attendee_1_id} is now connected to {attendee_2_id}')
+
+    # catch-all for errors 
+    except Exception as e:
+        print(f'Database Error: {e}')
+
+
     
-    if attendee_1_id == attendee_2_id:
-        print(f' *** ERROR *** : An attendee cannot be connected to him/herlsef')
-
-    
     
 
-
-
-
-
-
-
-
-
-
-
-    '''
-    with neo4j_driver.session() as session: 
-
-        try: 
-            session.execute_write(add conection, )
-'''
 ## main 
 if __name__ == '__main__':
-    add_connection()
+    main()
 
