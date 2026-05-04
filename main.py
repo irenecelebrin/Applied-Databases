@@ -1,14 +1,15 @@
 # Final project for Applied Databases
 
-# import 
+# import libraries to connect to db
 import pymysql
+from neo4j import GraphDatabase
 
 ## connect to MySQL database.
 
 # connect to database
 conn = pymysql.connect(user = 'root', 
                         cursorclass = pymysql.cursors.DictCursor,
-                        password = '',
+                        password = 'root',
                         host = 'localhost',
                         db = 'appdbproj',
                         port = 3306)
@@ -27,6 +28,11 @@ for name in attendee_names:
 
 '''
 
+# connect to Neo4j 
+
+uri = 'neo4j://localhost:7687'
+neo4j_driver = GraphDatabase.driver(uri, auth=('neo4j', 'neo4jneo4j'))
+
 def main():
 
 
@@ -40,9 +46,9 @@ def main():
         elif choice == '2':
             view_attendees()
         elif choice == '3':
-            print('3')
+            add_new_attendee()
         elif choice == '4':
-            print('4')
+            view_connected_attendees()
         elif choice == '5':
             print('5')
         elif choice == '6':
@@ -69,6 +75,72 @@ def display_menu():
     print('6 - View Rooms')
     print('x - Exit Application')
 
+
+# -------- Helper functions -------------------
+           
+
+# prompt user to provide a company ID until the ID is a valid number
+def get_valid_company_id(): 
+
+    while True: 
+        user_input = input('Enter company ID: ').strip()
+
+        if not user_input.isdigit():
+            continue
+
+        company_id = int(user_input)
+
+        if company_id <= 0:
+            continue
+
+        return company_id
+
+# verify that company exists and return company name. Input: int, output: list
+# TODO repurpose to return company name instead of company 
+def company_exists(company_id):
+
+    query = 'SELECT * FROM company' \
+            ' WHERE companyID = %s LIMIT 1'
+
+    cursor = conn.cursor() 
+    cursor.execute(query,(company_id,))
+    result = cursor.fetchone()
+
+    return result 
+
+# return attendee name from ID. Inputs: int, returns: string
+def get_attendee_name(attendee_id):
+
+    try:
+        query = 'SELECT AttendeeName from Attendee' \
+                ' WHERE AttendeeID = %s LIMIT 1'
+
+        cursor = conn.cursor()
+        cursor.execute(query,attendee_id)
+        items = cursor.fetchall()
+
+        attendee_name = items[0]['AttendeeName']
+
+        return attendee_name
+    
+    except IndexError as e:
+        print('*** ERROR *** : Attendee does not exist')
+    except Exception as e:
+        print('*** ERROR *** : Database error: {e}')
+
+# Return relations from Neo4J database 
+def get_relations(tx, module):
+
+    query = 'MATCH(n:Attendee{AttendeeID:$AttendeeID}) - [:CONNECTED_TO]-> (n1:Attendee) RETURN n1.AttendeeID as id' 
+    results = tx.run(query, AttendeeID = module)
+
+    relations = []
+    for result in results:
+        relations.append(result['id'])
+
+    return relations
+
+# ----------- MENU FUNCTIONS --------------- 
 
 def view_speakers():
 
@@ -102,24 +174,7 @@ def view_speakers():
 
     except Exception as e: 
         print('Databse error: {e}')
-           
-
-# verify that company ID is a valid number (integer, above 0)
-def get_valid_company_id(): 
-
-    while True: 
-        user_input = input('Enter company ID: ').strip()
-
-        if not user_input.isdigit():
-            continue
-
-        company_id = int(user_input)
-
-        if company_id <= 0:
-            continue
-
-        return company_id
-    
+   
 
 #TODO check if Date of session needs to be included in the output
 def view_attendees():
@@ -181,31 +236,77 @@ def view_attendees():
 
 def add_new_attendee():
 
-    print('Add New Attendee:')
-    print('--------')
-    id = int(input('Attendee ID: '))
-    name = input('Name: ')
-    dob = input('DOB: ')
-    gender = input('Gender: ')
-    company_id = int(input('Company ID: '))
+    try:
+
+        print('Add New Attendee:')
+        print('--------')
+        id = input('Attendee ID: ')
+        name = input('Name: ')
+        dob = input('DOB: ')
+        gender = input('Gender: ')
+        company_id = int(input('Company ID: '))
+
+        '''error handling: company ID does not exist in DB'''
+        if not company_exists(company_id):
+            print(f' ***ERROR*** Company ID {company_id} does not exist')
+            return 
+
+        query = 'INSERT INTO attendee' \
+                ' (attendeeID, attendeeName, attendeeDOB, attendeeGender, attendeeCompanyID)'\
+                ' VALUES (%s, %s, %s, %s, %s)'
+        
+        cursor = conn.cursor()
+        cursor.execute(query, (int(id), name, dob, gender, company_id))
+        conn.commit()
+        print('Attendee succcessfully added')
+    except pymysql.err.IntegrityError as e:
+        if e.args[0] == 1062:
+            print(f'*** ERROR *** Attendee ID: {id} already exists')
+    except pymysql.err.DataError as e:
+        if e.args[0] == 1265:
+            print(f'*** ERROR *** Gender must be Male/Female')
+    except Exception as e:
+        print (f'*** ERROR *** {e}')   
 
 
-    query = 'INSERT INTO attendee' \
-            ' (attendeeID, attendeeName, attendeeDOB, attendeeGender, attendeeCompanyID)'\
-            ' VALUES (%s, %s, %s, %s, %s)'
-
+def view_connected_attendees():
     
-    cursor = conn.cursor()
-    cursor.execute(query, (id, name, dob, gender, company_id))
-    conn.commit()
-    print('Attendee succcessfully added')
-    #except pymysql.err.IntegrityError as e:
+    try: 
+            
+        attendee_id = int(input('Enter Attendee ID: '))
 
+        '''get relations from neo4j'''
+        with neo4j_driver.session() as session:
 
+            '''execute  managed transaction with execute_read https://neo4j.com/docs/python-manual/current/transactions/'''
+            relations = session.execute_read(get_relations, attendee_id)
+
+        #get attendee name
+        attendee = get_attendee_name(attendee_id)
+        # Get connected attendees only when the attendee ID is valid and exists in the SQL database 
+        if attendee is not None:
+            print(f'Attendee Name: {attendee}')
+            print('--------')
+            if len(relations) > 0:
+                print('These attendees are connected:')
+
+                #match attendeeID with attendeeName
+                for relation in relations:
+                    relation_name = get_attendee_name(relation)
+                    print(f'{relation}\t|\t{relation_name}')
+            else: 
+                print('No connections')
+
+    # catch error for invalid ID (not int)
+    except ValueError as e:
+        print('*** ERROR *** : Invalid Attendee ID')
+    # catch-all 
+    except Exception as e:
+        print (f'Database error: {e}')
 
 
 
 ## main 
 if __name__ == '__main__':
-    add_new_attendee()
+    main()
 
