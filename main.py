@@ -128,6 +128,22 @@ def get_attendee_name(attendee_id):
     except Exception as e:
         print('*** ERROR *** : Database error: {e}')
 
+# verify if attendee ID exists in SLQ db. Input: int, Output: bool
+def attendee_exists(attendee_id):
+
+    try:
+        query = 'SELECT * from Attendee' \
+                ' WHERE AttendeeID = %s'
+
+        cursor = conn.cursor()
+        cursor.execute(query,(attendee_id,))
+        item = cursor.fetchone()
+
+        return item is not None
+
+    except Exception as e: 
+        print(f'Database Error :{e}')
+
 # Return relations from Neo4J database 
 def get_relations(tx, module):
 
@@ -304,9 +320,55 @@ def view_connected_attendees():
     except Exception as e:
         print (f'Database error: {e}')
 
+def add_connection():
+
+    while True: 
+        try: 
+            attendee_1_id = int(input('Enter Attendee 1 ID: '))
+        except ValueError as e: 
+            print(' *** ERROR ***: {e}')
+            continue
+        
+        if attendee_exists(attendee_1_id):
+            break
+        else: 
+            print(f'*** ERROR ***: Attendee {attendee_1_id} does not exist')
+
+    while True: 
+        try: 
+            attendee_2_id = int(input('Enter Attendee 2 ID: '))
+        except ValueError as e: 
+            print(' *** ERROR ***: {e}')
+            continue
+        
+        if attendee_exists(attendee_2_id):
+            break
+        else: 
+            print(f'*** ERROR ***: Attendee {attendee_2_id} does not exist')        
+    
+    if attendee_1_id == attendee_2_id:
+        print(f' *** ERROR *** : An attendee cannot be connected to him/herlsef')
+
+    
+    
 
 
+
+
+
+
+
+
+
+
+
+    '''
+    with neo4j_driver.session() as session: 
+
+        try: 
+            session.execute_write(add conection, )
+'''
 ## main 
 if __name__ == '__main__':
-    main()
+    add_connection()
 
