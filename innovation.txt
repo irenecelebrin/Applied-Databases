@@ -4,3 +4,11 @@ Add new attendee
 - control exception for invalid date of birth 
 - exception for invalid person ID --> now managed upstream with int() and not database error. 
 
+create helper functions for 
+get_attendeeName (from id)
+get_companyname (from id)
+
+add attendee: company does not exist is triggered before other error messages 
+
+
+
