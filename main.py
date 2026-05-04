@@ -52,7 +52,7 @@ def main():
         elif choice == '5':
             add_connection()
         elif choice == '6':
-            print(6)
+            view_rooms()
         elif choice == 'x':
             break
         else:
@@ -167,6 +167,7 @@ def create_connection(tx, id1, id2):
 
 # ----------- MENU FUNCTIONS --------------- 
 
+# 1. View speakers and session information
 def view_speakers():
 
     try: 
@@ -201,7 +202,7 @@ def view_speakers():
         print('Databse error: {e}')
    
 
-# Given a company ID, view attendees and the sessions they are registered for
+# 2. Given a company ID, view its attendees and the sessions they are registered for
 def view_attendees():
 
     while True: 
@@ -259,7 +260,7 @@ def view_attendees():
         except Exception as e:
             print(f'Database error: {type(e)}')
 
-# Add a new attendee to the SQL database (table: attendee)
+# 3. Add a new attendee to the SQL database (table: attendee)
 def add_new_attendee():
 
     try:
@@ -295,7 +296,7 @@ def add_new_attendee():
         print (f'*** ERROR *** {e}')   
 
 
-# View existing relations (CONNECTED_TO) in the Neo4J database
+# 4. View existing relations (CONNECTED_TO) in the Neo4J database
 def view_connected_attendees():
     
     try: 
@@ -332,7 +333,7 @@ def view_connected_attendees():
         print (f'Database error: {e}')
 
 
-# Add a new relation (CONNECTED_TO) between to valid attendee IDs (if no relation already exists)
+# 5. Add a new relation (CONNECTED_TO) between to valid attendee IDs (if no relation already exists)
 def add_connection():
 
     # ask for attendee ID, veirfy that they are numbers and that they exist in the SQL db
@@ -378,7 +379,19 @@ def add_connection():
         print(f'Database Error: {e}')
 
 
-    
+# 6. view room details 
+def view_rooms():
+
+    query= 'SELECT * FROM room'
+    cursor = conn.cursor()
+    cursor.execute(query)
+    rooms = cursor.fetchall()
+        
+    print('Room ID\t|\tRoomName\t|\tCapacity')
+    for room in rooms:
+        print(f'{room['roomID']}\t|\t{room['roomName']}\t|\t{room['capacity']}')
+
+
     
 
 ## main 
