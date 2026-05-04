@@ -11,4 +11,11 @@ get_companyname (from id)
 add attendee: company does not exist is triggered before other error messages 
 
 
+TO DO: 
+
+test connection is neo4j or remove test for mysql 
+
+adding a new person adds it to mysql but not neo4j --> impossible to create relationships 
+also not saved in the company table
+
 
