@@ -190,9 +190,9 @@ def add_new_attendee():
         gender = input('Gender: ')
         company_id = int(input('Company ID: '))
 
-        # check if the company exists and if not print an error message 
+        # check if the company exists and if not print an error message and ask the user to try again with a different company ID
         if not company_exists(company_id):
-            print(f' ***ERROR*** Company ID {company_id} does not exist')
+            print(f' *** ERROR*** Company ID: {company_id} does not exist')
             return
 
         # add the new attendee into the database
