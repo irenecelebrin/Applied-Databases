@@ -1,12 +1,23 @@
 
+
+
+View attendees: 
+- DONE: Helper function to verify ask the user for a company ID until valid --> better than handling in the main function 
+- TO DO: Helper function to get company name from ID 
+
+
 Add new attendee 
-- control exception for invalid company id --> helper function 
 - control exception for invalid date of birth 
 - exception for invalid person ID --> now managed upstream with int() and not database error. 
 
+ALSO 
+- catch-all exceptions for fallback, even when not required for the project 
+
+
+
+
 create helper functions for 
 get_attendeeName (from id)
-get_companyname (from id)
 
 add attendee: company does not exist is triggered before other error messages 
 
@@ -21,5 +32,7 @@ TO DO:
 also not saved in the company table
 
 - add schemas for neo4j 
+
+- option 2 --> create helper function to return company ID 
 
 

@@ -13,6 +13,10 @@ The application was developed with Python. The required libraries are listed in 
 
     pip install -r requirements.txt
 
+To execute the code, run the following command: 
+
+    python main.py
+
 
 ### Project Structure
 
