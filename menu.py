@@ -1,7 +1,10 @@
+# menu file to display the application menu and handle the user's choices.
+
+# import MySQL and Neo4j operations
 from mysql_operations import view_speakers, view_attendees, add_new_attendee, view_rooms
 from neo4j_operations import view_connected_attendees, add_connection
 
-
+# display the application menu
 def display_menu():
     print('--------')
     print('Conference Management')
@@ -16,6 +19,7 @@ def display_menu():
     print('6 - View Rooms')
     print('x - Exit Application')
 
+# -------------------------------------------
 
 def main():
     while True:
