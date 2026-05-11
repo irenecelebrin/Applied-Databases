@@ -1,4 +1,4 @@
-# menu file to display the application menu and handle the user's choices.
+# Menu file to display the application menu and handle the user's choices.
 
 # import MySQL and Neo4j operations
 from mysql_operations import view_speakers, view_attendees, add_new_attendee, view_rooms
