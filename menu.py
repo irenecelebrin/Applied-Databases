@@ -19,7 +19,7 @@ def display_menu():
     print('6 - View Rooms')
     print('x - Exit Application')
 
-# -------------------------------------------
+# ---------------------- Main ---------------------
 
 def main():
     while True:
