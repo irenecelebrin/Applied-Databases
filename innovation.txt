@@ -1,10 +1,15 @@
+[TODO] required packages: 
+
+Helper functions 
+Error fallbacks even when not required 
+[TO DO] schemas saved in the db folder 
+[TO DO] When an attendee is added, it is added to Neo4J too 
 
 
 
 View attendees: 
 - DONE: Helper function to verify ask the user for a company ID until valid --> better than handling in the main function 
 - TO DO: Helper function to get company name from ID 
-
 
 Add new attendee 
 - control exception for invalid date of birth 
