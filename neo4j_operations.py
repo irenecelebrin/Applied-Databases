@@ -73,18 +73,20 @@ def add_connection():
             print('*** ERROR *** An attendee cannot connect to him/herself')
             continue
 
+        with neo4j_driver.session() as session:
+            relations = session.execute_read(get_relations, attendee_1_id)
+
+        if attendee_2_id in relations:
+            print('*** ERROR *** These attendees are already connected')
+            continue
+
         break
 
     try:
         with neo4j_driver.session() as session:
-            relations = session.execute_read(get_relations, attendee_1_id)
-            if attendee_2_id in relations:
-                print('*** ERROR *** : These attendees are already connected')
-            else:
-                with neo4j_driver.session() as session:
-                    session.execute_write(create_connection, attendee_1_id, attendee_2_id)
+            session.execute_write(create_connection, attendee_1_id, attendee_2_id)
 
-                print(f'Attendee {attendee_1_id} is now connected to Attendee {attendee_2_id}')
+        print(f'Attendee {attendee_1_id} is now connected to Attendee {attendee_2_id}')
 
     except Exception as e:
         print(f'Database Error: {e}')

@@ -14,11 +14,10 @@ List of helper functions:
 - attendee_exists(attendee_id)
 
 ## 3. Add new attendee: Neo4j implementation
-The menu function to "Add new attendee" adds the attendee to both databases, not just Neo4j. 
+The menu function to "Add new attendee" adds the attendee to both databases, not just Neo4j. Before adding this function, when a new member was created, it was not possible to add connections, because it did not exist in Neo4j.  
 
 ## 3. Exceptions 
 Throughout the code, generic Exceptions are used to catch all errors, also when not required. 
 
 ## 4. database
 The folder data is created to save the databases and information on the schemas. 
-
