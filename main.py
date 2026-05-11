@@ -1,10 +1,12 @@
 # main file to run the application. To run the application, execute the following command: python main.py
 
+# import required libraries
 import importlib.util
 import subprocess
 import sys
 
-# import menu 
+# import custom modules
+from connections import neo4j_driver
 from menu import main
 
 # verify if the required packages are installed, and if not, install them 
@@ -18,10 +20,17 @@ def ensure_packages():
             # install the packages and print status messages. Source: https://docs.python.org/3/library/subprocess.html#subprocess.check_call
             subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
-ensure_packages()
+# verify if the Neo4j connection is working or start connection 
+def ensure_neo4j():
+    try:
+        neo4j_driver.verify_connectivity()
+    except Exception as e:
+        print(f'*** ERROR *** Cannot connect to Neo4j: {e}')
+        sys.exit(1)
 
 
-
-# -------------------------------------------
+# ------------------------ Main -------------------
 if __name__ == '__main__':
+    ensure_packages()
+    ensure_neo4j()
     main()
