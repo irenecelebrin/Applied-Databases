@@ -84,7 +84,7 @@ def add_connection():
                 with neo4j_driver.session() as session:
                     session.execute_write(create_connection, attendee_1_id, attendee_2_id)
 
-                print(f'Attendee {attendee_1_id} is now connected to {attendee_2_id}')
+                print(f'Attendee {attendee_1_id} is now connected to Attendee {attendee_2_id}')
 
     except Exception as e:
         print(f'Database Error: {e}')
