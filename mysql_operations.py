@@ -2,7 +2,7 @@
 
 # import pymysql and connections
 import pymysql
-from connections import conn
+from connections import conn, neo4j_driver
 
 
 # -------- Helper functions -------------------
@@ -191,6 +191,12 @@ def add_new_attendee():
         cursor = conn.cursor()
         cursor.execute(query, (int(attendee_id), name, dob, gender, company_id))
         conn.commit()
+
+        # add the new attendee to the Neo4j database
+        with neo4j_driver.session() as session:
+            from neo4j_operations import create_attendee_node
+            session.execute_write(create_attendee_node, int(attendee_id))
+
         # print success message
         print('Attendee successfully added')
 

@@ -15,6 +15,10 @@ def get_relations(tx, attendee):
     return relations
 
 
+def create_attendee_node(tx, attendee_id):
+    tx.run('MERGE (n:Attendee {AttendeeID: $attendee_id})', attendee_id=attendee_id)
+
+
 def create_connection(tx, id1, id2):
     query = 'MATCH (n:Attendee {AttendeeID: $id1}), (n1:Attendee{AttendeeID: $id2})' \
             ' MERGE (n) - [:CONNECTED_TO] -> (n1)'
