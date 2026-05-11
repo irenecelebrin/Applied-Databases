@@ -22,17 +22,16 @@ def get_valid_company_id():
 
         return company_id
 
-# find company by id and to verify if a company exists in the database
-def company_exists(company_id):
-    # query the database to get 1 company name 
-    query = 'SELECT * FROM company' \
+# find company by id and return its name, or None if it doesn't exist
+def get_company_name(company_id):
+    query = 'SELECT companyName FROM company' \
             ' WHERE companyID = %s LIMIT 1'
 
     cursor = conn.cursor()
     cursor.execute(query, (company_id,))
     result = cursor.fetchone()
 
-    return result
+    return result['companyName'] if result else None
 
 
 # get the attendee name from the attendee id
@@ -43,7 +42,7 @@ def get_attendee_name(attendee_id):
                 ' WHERE AttendeeID = %s LIMIT 1'
 
         cursor = conn.cursor()
-        cursor.execute(query, attendee_id)
+        cursor.execute(query, (attendee_id,))
         items = cursor.fetchall()
 
         attendee_name = items[0]['AttendeeName']
@@ -119,11 +118,11 @@ def view_attendees():
         try:
             # get a valid company id from the user
             search_for = get_valid_company_id()
-            search_string = search_for
-            # use company id to get informaton from multiple tables with INNER JOINs 
-            company_query = 'SELECT companyName' \
-                            ' from company' \
-                            ' WHERE companyID = %s'
+
+            company_name = get_company_name(search_for)
+            if not company_name:
+                print(f"Company with ID {search_for} doesn't exist")
+                continue
 
             attendee_query = 'SELECT attendee.attendeeName, attendee.attendeeDOB, session.sessionTitle, session.speakerName, session.sessionDate, room.roomName' \
                              ' from attendee' \
@@ -137,13 +136,8 @@ def view_attendees():
                              ' ORDER BY attendee.attendeeName'
 
             cursor = conn.cursor()
-            cursor.execute(company_query, (search_string,))
-            company = cursor.fetchall()
-            cursor.execute(attendee_query, (search_string,))
+            cursor.execute(attendee_query, (search_for,))
             items = cursor.fetchall()
-
-            # get the company name from the company id
-            company_name = company[0]['companyName']
             # store attendees in a list 
             attendees = []
             for item in items:
@@ -168,14 +162,8 @@ def view_attendees():
                 print(f'No attendees found for {company_name}')
                 continue
 
-        # handle exceptions. 
-        # If the company ID does not exist, the user can try again with a different company ID. 
-        except IndexError:
-            print(f"Company with ID {search_for} doesn't exist")
-            continue
-        # catchall 
         except Exception as e:
-            print(f'Database error: {type(e)}')
+            print(f'Database error: {e}')
 
 
 # add a new attendee (option 3 in the menu)
@@ -184,14 +172,14 @@ def add_new_attendee():
         # get required attendee information from the user
         print('Add New Attendee:')
         print('--------')
-        id = input('Attendee ID: ')
+        attendee_id = input('Attendee ID: ')
         name = input('Name: ')
         dob = input('DOB: ')
         gender = input('Gender: ')
         company_id = int(input('Company ID: '))
 
         # check if the company exists and if not print an error message and ask the user to try again with a different company ID
-        if not company_exists(company_id):
+        if not get_company_name(company_id):
             print(f' *** ERROR*** Company ID: {company_id} does not exist')
             return
 
@@ -201,16 +189,16 @@ def add_new_attendee():
                 ' VALUES (%s, %s, %s, %s, %s)'
 
         cursor = conn.cursor()
-        cursor.execute(query, (int(id), name, dob, gender, company_id))
+        cursor.execute(query, (int(attendee_id), name, dob, gender, company_id))
         conn.commit()
         # print success message
-        print('Attendee succcessfully added')
+        print('Attendee successfully added')
 
     # handle exceptions and print error messages 
     # if the attendee ID already exists
     except pymysql.err.IntegrityError as e:
         if e.args[0] == 1062:
-            print(f'*** ERROR *** Attendee ID: {id} already exists')
+            print(f'*** ERROR *** Attendee ID: {attendee_id} already exists')
     # if the gender is not Male/Female
     except pymysql.err.DataError as e:
         if e.args[0] == 1265:
@@ -222,13 +210,18 @@ def add_new_attendee():
 
 # view rooms (option 6 in the menu)
 def view_rooms():
-    # query the database to get all rooms
-    query = 'SELECT * FROM room'
-    cursor = conn.cursor()
-    cursor.execute(query)
-    rooms = cursor.fetchall()
 
-    # print the room details
-    print('Room ID\t|\tRoomName\t|\tCapacity')
-    for room in rooms:
-        print(f"{room['roomID']}\t|\t{room['roomName']}\t|\t{room['capacity']}")
+    try: 
+        # query the database to get all rooms
+        query = 'SELECT * FROM room'
+        cursor = conn.cursor()
+        cursor.execute(query)
+        rooms = cursor.fetchall()
+
+        # print the room details
+        print('Room ID\t|\tRoomName\t|\tCapacity')
+        for room in rooms:
+            print(f"{room['roomID']}\t|\t{room['roomName']}\t|\t{room['capacity']}")
+
+    except Exception as e:
+        print(f'Database error: {e}')
