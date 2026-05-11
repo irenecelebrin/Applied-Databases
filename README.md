@@ -38,4 +38,4 @@ project/
 
 The project includes different python files to establish the datababse connections, store MySQL and Neo4j operations, and the application menu. 
 
-It also includes a folder [db](db) with the databases and their schemas. The other files are innovation.txt and gitLink.txt.
+It also includes a folder [db](db) with the databases and their schemas. The other files are innovation.pdf and gitLink.txt.
