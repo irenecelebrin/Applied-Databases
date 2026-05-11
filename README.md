@@ -1,10 +1,10 @@
 # Applied-Databases
 
-Final project for the Course "Applied Databases", Higher Diploma in Computing for Data Analytics, ATU Galway-Mayo, 2025/2026. 
+Final project for the course "Applied Databases", Higher Diploma in Computing for Data Analytics, ATU Galway-Mayo, 2025/2026. 
 
 ## About this project
 
-The project is a Python application allowing CRUD functionalities for a Business Fair. Through the program, users can access and perform operations to two databases, a MySQL (relational) database, and a Neo4j (Graph) database. 
+The project is a Python application allowing CRUD functionalities for a Business Fair. With the program, users can access and perform operations to two databases - a MySQL (relational) database, and a Neo4j (Graph) database - in their terminal. 
 
 ### Getting started 
 
