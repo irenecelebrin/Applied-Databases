@@ -3,55 +3,22 @@
 
 - Required libraries are listed in [requirements.txt](requirements.txt)
 - When the program is executed, a function *ensure_packages()* verifies if the required libraries are installed, and if not, installs them. 
+**However, it is assumed that the databases are already saved in the machine**. 
 
 ## 2. Helper functions 
+Helper functions are created in my_sql_operations.py to make the code of the menu functions easier to read and less repetitive - instead of writing the code inside the menu functions. 
+List of helper functions: 
+- get_valid_comapany_id()
+- get_company_name(company_id)
+- get_attendee_name(attendee_id)
+- attendee_exists(attendee_id)
+
+## 3. Add new attendee: Neo4j implementation
+The menu function to "Add new attendee" adds the attendee to both databases, not just Neo4j. 
 
 ## 3. Exceptions 
-
-Throughtout the code, generic Exceptions are used to catch any errors, also when not required 
+Throughout the code, generic Exceptions are used to catch all errors, also when not required. 
 
 ## 4. database
-
 The folder data is created to save the databases and information on the schemas. 
-
-Helper functions 
-Error fallbacks even when not required 
-[TO DO] schemas saved in the db folder 
-[TO DO] When an attendee is added, it is added to Neo4J too 
-
-
-
-View attendees: 
-- DONE: Helper function to verify ask the user for a company ID until valid --> better than handling in the main function 
-- TO DO: Helper function to get company name from ID 
-
-Add new attendee 
-- control exception for invalid date of birth 
-- exception for invalid person ID --> now managed upstream with int() and not database error. 
-
-ALSO 
-- catch-all exceptions for fallback, even when not required for the project 
-
-
-
-
-create helper functions for 
-get_attendeeName (from id)
-
-add attendee: company does not exist is triggered before other error messages 
-
-
-TO DO:
-
-- ReadME 
-
-- test connection is neo4j or remove test for mysql 
-
-- adding a new person adds it to mysql but not neo4j --> impossible to create relationships 
-also not saved in the company table
-
-- add schemas for neo4j 
-
-- option 2 --> create helper function to return company ID 
-
 
