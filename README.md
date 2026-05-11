@@ -26,7 +26,7 @@ project/
 ├── connections.py       # DB connection objects
 ├── mysql_operations.py  # MySQL helpers + MySQL-only menu actions
 ├── neo4j_operations.py  # Neo4j tx functions + menu actions using Neo4j
-├── menu.py              # display_menu, get_valid_company_id, main loop
+├── menu.py              # display_menu, main loop
 ├── requirements.txt     # required Python libraries
 ├── db/
     ├── mysql_schemas.md     # MySQL schema documentation
@@ -39,4 +39,3 @@ project/
 The project includes different python files to establish the datababse connections, store MySQL and Neo4j operations, and the application menu. 
 
 It also includes a folder [db](db) with the databases and their schemas. The other files are innovation.txt and gitLink.txt.
-
