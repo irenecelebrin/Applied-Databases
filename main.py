@@ -1,4 +1,4 @@
-# main file to run the application. To run the application, execute the following command: python main.py
+# Main file to run the application. To run the application, execute the following command: python main.py
 
 # import required libraries
 import importlib.util

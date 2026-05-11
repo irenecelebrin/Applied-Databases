@@ -1,4 +1,4 @@
-# MySQL operations and related helper functions 
+# MySQL operations and helper functions 
 
 # import pymysql and connections
 import pymysql
