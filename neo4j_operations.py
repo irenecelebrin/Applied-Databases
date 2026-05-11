@@ -48,7 +48,7 @@ def view_connected_attendees():
                 print('No connections')
 
     except ValueError:
-        print('*** ERROR *** : Invalid Attendee ID')
+        print('*** ERROR *** Invalid Attendee ID')
     except Exception as e:
         print(f'Database error: {e}')
 
@@ -59,18 +59,18 @@ def add_connection():
         id_2 = input('Enter Attendee 2 ID: ').strip()
 
         if not (id_1.isdigit() and id_2.isdigit()):
-            print('*** ERROR ***: Attendee IDs must be numbers ')
+            print('*** ERROR *** Attendee IDs must be numbers ')
             continue
 
         attendee_1_id = int(id_1)
         attendee_2_id = int(id_2)
 
         if not (attendee_exists(attendee_1_id) and attendee_exists(attendee_2_id)):
-            print('*** ERROR *** : One or both attendees do not exist')
+            print('*** ERROR *** One or both attendees do not exist')
             continue
 
         if attendee_1_id == attendee_2_id:
-            print('*** ERROR *** : An attendee cannot connect to him/herself')
+            print('*** ERROR *** An attendee cannot connect to him/herself')
             continue
 
         break
