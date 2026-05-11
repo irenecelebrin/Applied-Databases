@@ -36,7 +36,7 @@ project/
 └── gitLink.txt
 ```
 
-The project includes several python files to establish the datababse conections, store MySQL and Neo4j operations, and the application menu. 
+The project includes different python files to establish the datababse connections, store MySQL and Neo4j operations, and the application menu. 
 
 It also includes a folder [db](db) with the databases and their schemas. The other files are innovation.txt and gitLink.txt.
 
