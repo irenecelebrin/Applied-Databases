@@ -25,9 +25,8 @@ def ensure_neo4j():
     try:
         neo4j_driver.verify_connectivity()
     except Exception as e:
-        print(f'*** ERROR *** Cannot connect to Neo4j: {e}')
+        print(f'*** ERROR *** Cannot connect to Neo4j: {e}. Connect to Neo4j in your terminal, with the command: neo4j console')
         sys.exit(1)
-
 
 # ------------------------ Main -------------------
 if __name__ == '__main__':
