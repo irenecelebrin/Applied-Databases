@@ -1,4 +1,18 @@
-[TODO] required packages: 
+# Innovation 
+## 1. Dependencies
+
+- Required libraries are listed in [requirements.txt](requirements.txt)
+- When the program is executed, a function *ensure_packages()* verifies if the required libraries are installed, and if not, installs them. 
+
+## 2. Helper functions 
+
+## 3. Exceptions 
+
+Throughtout the code, generic Exceptions are used to catch any errors, also when not required 
+
+## 4. database
+
+The folder data is created to save the databases and information on the schemas. 
 
 Helper functions 
 Error fallbacks even when not required 
