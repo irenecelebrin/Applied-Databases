@@ -8,8 +8,7 @@ The project is a Python application allowing CRUD functionalities for a Business
 
 ### Getting started 
 
-The application was developed with Python. The required libraries are listed in [requirements.txt](requirements.txt). They can be installed with the command: 
-
+The application was developed with Python. The required libraries are listed in [requirements.txt](requirements.txt). To install them:  
 
     pip install -r requirements.txt
 
@@ -25,14 +24,12 @@ If the databases are not already imported and saved:
 - From the pivot menu, import the database through *Server/Data Import/Import from Self Contained File* and select the path to [appdbproj.sql](db/appdbproj.sql)
 
 **Neo4J**
-- In terminal, navigate to *Neo4j/bin* 
-- Import the database with the command: 
 
-    type Path_to_Lab7Part1Commands.json | cypher-shell.bat -u neo4j -p neo4jneo4j --format plain
+In terminal, navigate to *Neo4j/bin*. Import the database [appdbprojNeo4j.json](db/appdbprojNeo4j.json) with the command: 
 
+    type *Path_to_Lab7Part1Commands.json* | cypher-shell.bat -u neo4j -p neo4jneo4j --format plain
 
-- make username and password are correct (-u and -p)
-
+Make sure username and password are correct (-u and -p). 
 
 ### Project Structure
 
@@ -52,6 +49,6 @@ project/
 └── gitLink.txt
 ```
 
-The project includes different python files to establish the datababse connections, store MySQL and Neo4j operations, and the application menu. 
+The project includes different python files to establish the database connections, store MySQL and Neo4j operations, and the application menu. 
 
 It also includes a folder [db](db) with the databases and their schemas. The other files are innovation.pdf and gitLink.txt.
