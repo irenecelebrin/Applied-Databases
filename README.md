@@ -17,6 +17,22 @@ To execute the code, run the following command:
 
     python main.py
 
+If the databases are not already imported and saved: 
+
+**MySQL**
+
+- *Open MySQL WorkBench/Database/Connect to Database*. Click *OK*. 
+- From the pivot menu, import the database through *Server/Data Import/Import from Self Contained File* and select the path to [appdbproj.sql](db/appdbproj.sql)
+
+**Neo4J**
+- In terminal, navigate to *Neo4j/bin* 
+- Import the database with the command: 
+
+    type Path_to_Lab7Part1Commands.json | cypher-shell.bat -u neo4j -p neo4jneo4j --format plain
+
+
+- make username and password are correct (-u and -p)
+
 
 ### Project Structure
 
